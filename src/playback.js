@@ -32,15 +32,29 @@ export default class Playback {
         this.gif = gif;
 
         this.element.innerHTML = "";
-        var createFrameElement = createImage;//(this.fill) ? createDiv : createImage;
-        gif.frames.map(createFrameElement)
-          .forEach(this.element.appendChild, this.element);
+        //var createFrameElement = createImage;//(this.fill) ? createDiv : createImage;
+        //gif.frames.map(createFrameElement)
+          //.forEach(this.element.appendChild, this.element);
+        gif.frames.map((frame) => {
+          var image = createImage(frame);
+          if (opts.imgStyle) {
+            image.style.cssText = opts.imgStyle;
+          }
+          return image;
+        }).forEach(this.element.appendChild, this.element);
 
         if (this.fill) requestAnimationFrame(this.scaleToFill.bind(this));
 
         resolve();
       });
     })
+  }
+
+  updateImgStyle(style) {
+    var imgs = this.element.getElementsByTagName('img');
+    for (var i = 0; i < imgs.length; i++) {
+      imgs[i].style.cssText = style;
+    };
   }
 
   scaleToFill() {

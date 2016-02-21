@@ -33,6 +33,12 @@ class XGifController {
     });
   }
 
+  imgStyleChanged(style) {
+    console.log('imgStyleChanged');
+    console.log(style);
+    this.playback.updateImgStyle(style);
+  }
+
   speedChanged(speed) {
     if (this.playback) this.playback.speed = speed;
   }
@@ -113,13 +119,16 @@ class XGif extends HTMLElement {
       fill: this.hasAttribute('fill'),
       nTimes: isNaN(maybeNtimes) ? null : maybeNtimes,
       snap: this.hasAttribute('snap'),
-      pingPong: this.hasAttribute('ping-pong')
+      pingPong: this.hasAttribute('ping-pong'),
+      imgStyle: this.getAttribute('img-style') || null
     }
   }
 
   attributeChangedCallback(attribute, oldVal, newVal) {
     if (attribute == "src") {
       this.controller.srcChanged(newVal)
+    } else if (attribute == "img-style") {
+      this.controller.imgStyleChanged(newVal)
     } else if (attribute == "speed") {
       this.determinePlaybackMode();
       this.controller.speedChanged(this.speed);
