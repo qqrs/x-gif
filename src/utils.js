@@ -11,6 +11,10 @@ export var Promises = {
         // This is called even on 404 etc
         // so check the status
         if (this.status == 200) {
+          // uncomment to reject half of successful requests for testing
+          //if (Math.random() < 0.5) {
+            //reject('chaos');
+          //}
           // Resolve the promise with the response text
           resolve(this.response);
         }
