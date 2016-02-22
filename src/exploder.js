@@ -50,7 +50,7 @@ export default class Exploder {
   }
 
   explode(buffer) {
-    console.debug("EXPLODING " + this.file)
+    //console.debug("EXPLODING " + this.file)
     return new Promise((resolve, reject) => {
       var frames = [],
         streamReader = new StreamReader(buffer);
