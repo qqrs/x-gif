@@ -16,8 +16,34 @@ export default class Exploder {
     var cachedGifPromise = gifCache.get(this.file)
     if (cachedGifPromise) return cachedGifPromise;
 
-    var gifPromise = Promises.xhrGet(this.file, '*/*', 'arraybuffer')
-      .then(buffer => this.explode(buffer));
+    // This is how to do it without the retry
+    //var xhrPromise = Promises.xhrGet(this.file, '*/*', 'arraybuffer');
+
+    // This is how to do it with the retry
+    var xhrPromise = new Promise((resolve, reject) => {
+      var retryPromise = null;
+      var numRetries = 8;
+      var tryXhr = function() {
+        retryPromise = Promises.xhrGet(this.file, '*/*', 'arraybuffer');
+        retryPromise.then(buffer => resolve(buffer));
+        retryPromise.catch(() => {
+          if (numRetries-- <= 0) {
+            console.error('All retries failed: ' + this.file);
+            reject('All retries failed: ' + this.file);
+          } else {
+            console.error('Preparing to retry: ' + this.file);
+            setTimeout(tryXhr.bind(this), 1000);
+          }
+        });
+      }.bind(this);
+      tryXhr();
+    });
+
+    var gifPromise = xhrPromise.then(buffer => this.explode(buffer));
+    xhrPromise.catch((err) => window.alert(
+      'Unable to load gif after multiple retries. ' +
+      'Try reloading the page, or use a gif from a better host if you are the' +
+      ' gifball creator .'))
 
     gifCache.set(this.file, gifPromise);
     return gifPromise;
