@@ -22,17 +22,18 @@ export default class Exploder {
     // This is how to do it with the retry
     var xhrPromise = new Promise((resolve, reject) => {
       var retryPromise = null;
-      var numRetries = 8;
+      var numRetries = 0;
       var tryXhr = function() {
         retryPromise = Promises.xhrGet(this.file, '*/*', 'arraybuffer');
         retryPromise.then(buffer => resolve(buffer));
         retryPromise.catch(() => {
-          if (numRetries-- <= 0) {
+          if (numRetries++ >= 8) {
             console.error('All retries failed: ' + this.file);
             reject('All retries failed: ' + this.file);
           } else {
             console.error('Preparing to retry: ' + this.file);
-            setTimeout(tryXhr.bind(this), 1000);
+            var nextWait = Math.pow(1.4, numRetries) * 1000;
+            setTimeout(tryXhr.bind(this), nextWait);
           }
         });
       }.bind(this);
